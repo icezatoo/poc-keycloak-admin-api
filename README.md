@@ -4,7 +4,7 @@ It's an API Skeleton project based on Echo framework.
 
 ## Usage
 
-1. Copy .env to .env and set the environment variables.
+1. create the .env and set the environment variables.
 
    We have the config from keycloak `HOST_KEYCLOAK="localhost"` `REALM="Test"` `CLIENT_ID="test"`
    `CLIENT_SECRET="123231230"`
