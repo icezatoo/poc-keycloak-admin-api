@@ -2,6 +2,15 @@
 
 It's an API Skeleton project based on Echo framework.
 
+## Usage
+
+1. Copy .env to .env and set the environment variables.
+
+   We have the config from keycloak `HOST_KEYCLOAK="localhost"` `REALM="Test"` `CLIENT_ID="test"`
+   `CLIENT_SECRET="123231230"`
+
+   We have config host/port for Echo framework. `HOST="localhost"` `PORT="1323"`
+
 ## Directories
 
 1. **/config** has structures which contains service config.
