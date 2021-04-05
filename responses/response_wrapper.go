@@ -1,7 +1,7 @@
 package responses
 
 import (
-"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4"
 )
 
 type Error struct {

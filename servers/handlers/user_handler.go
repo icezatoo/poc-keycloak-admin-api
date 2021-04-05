@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/Nerzal/gocloak/v8"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"poc-keycloak-admin-api/requests"
 	"poc-keycloak-admin-api/responses"
 	s "poc-keycloak-admin-api/servers"
+	userServices "poc-keycloak-admin-api/services/user"
 	"poc-keycloak-admin-api/utils"
 )
 
@@ -18,8 +18,6 @@ type UserHandler struct {
 func NewUserHandler(server *s.Server) *UserHandler {
 	return &UserHandler{server: server}
 }
-
-
 
 // GetUsers godoc
 // @Summary Get users list
@@ -32,23 +30,28 @@ func NewUserHandler(server *s.Server) *UserHandler {
 // @Security ApiKeyAuth
 // @Router /users [get]
 func (u *UserHandler) GetUsers(c echo.Context) error {
+	registerUserRequest := new(requests.GetKeycloakUserParamsRequest)
 	accessToken := utils.GetAccessTokenFromHeader(c)
+
+	if err := c.Bind(registerUserRequest); err != nil {
+		return err
+	}
 
 	// get the userId  from access token
 	//_ , jwtClaims , _ := u.server.GoCloakClient.DecodeAccessToken(u.server.Ctx,accessToken, u.server.Config.KeycloakConfig.Realm,"")
 	//userId := (*jwtClaims)["sub"]
 	//fmt.Println(userId)
 
-	users ,_ :=	u.server.GoCloakClient.GetUsers(
-		u.server.Ctx,
-		accessToken,
-		u.server.Config.KeycloakConfig.Realm ,
-		gocloak.GetUsersParams{},
-		)
+	userService := userServices.NewUserService(u.server.GoCloakClient)
+
+	users, err := userService.GetUserList(registerUserRequest, accessToken, u.server.Config.KeycloakConfig.Realm)
+
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusNotFound, "Cannot get the users")
+	}
 
 	return responses.Response(c, http.StatusOK, users)
 }
-
 
 // GetUserDetail godoc
 // @Summary Get user info
@@ -60,18 +63,19 @@ func (u *UserHandler) GetUsers(c echo.Context) error {
 // @Failure 401 {object} responses.Error
 // @Security ApiKeyAuth
 // @Router /me [get]
-func (u *UserHandler) GetUserDetail(c echo.Context) error  {
+func (u *UserHandler) GetUserDetail(c echo.Context) error {
 	accessToken := utils.GetAccessTokenFromHeader(c)
 
-    userInfo , err :=u.server.GoCloakClient.GetUserInfo(u.server.Ctx, accessToken , u.server.Config.KeycloakConfig.Realm)
+	userService := userServices.NewUserService(u.server.GoCloakClient)
 
-    if err !=nil {
+	userInfo, err := userService.GetUserInfo(accessToken, u.server.Config.KeycloakConfig.Realm)
+
+	if err != nil {
 		return responses.ErrorResponse(c, http.StatusNotFound, "Cannot get the userInfo")
 	}
 
 	return responses.Response(c, http.StatusOK, userInfo)
 }
-
 
 // CreateUser godoc
 // @Summary Create user
@@ -85,11 +89,9 @@ func (u *UserHandler) GetUserDetail(c echo.Context) error  {
 // @Failure 401 {object} responses.Error
 // @Security ApiKeyAuth
 // @Router /users [post]
-func (u *UserHandler) CreateUser(c echo.Context) error  {
+func (u *UserHandler) CreateUser(c echo.Context) error {
 	accessToken := utils.GetAccessTokenFromHeader(c)
 	createUserRequest := new(requests.CreateUserRequest)
-
-	fmt.Println(createUserRequest)
 
 	if err := c.Bind(createUserRequest); err != nil {
 		return err
@@ -107,13 +109,15 @@ func (u *UserHandler) CreateUser(c echo.Context) error  {
 		Username:  gocloak.StringP(createUserRequest.Username),
 	}
 
-	 _, err :=	u.server.GoCloakClient.CreateUser(u.server.Ctx,accessToken,u.server.Config.KeycloakConfig.Realm,user)
+	userService := userServices.NewUserService(u.server.GoCloakClient)
 
- 	if err != nil {
- 		return responses.ErrorResponse(c,http.StatusInternalServerError , "Cannot create user in keycloak")
-	 }
+	_, err := userService.SaveUser(user, accessToken, u.server.Config.KeycloakConfig.Realm)
 
-    return responses.MessageResponse(c, http.StatusCreated, "User successfully created")
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusInternalServerError, "Cannot create user in keycloak")
+	}
+
+	return responses.MessageResponse(c, http.StatusCreated, "User successfully created")
 }
 
 // DeleteUser godoc
@@ -126,22 +130,23 @@ func (u *UserHandler) CreateUser(c echo.Context) error  {
 // @Failure 404 {object} responses.Error
 // @Security ApiKeyAuth
 // @Router /users/{id} [delete]
-func (u *UserHandler) DeleteUser(c  echo.Context) error  {
+func (u *UserHandler) DeleteUser(c echo.Context) error {
 
 	accessToken := utils.GetAccessTokenFromHeader(c)
+	userService := userServices.NewUserService(u.server.GoCloakClient)
+
 	id := c.Param("id")
 
 	if id == "" {
-		return responses.ErrorResponse(c,http.StatusBadRequest , "The id is null or missing")
+		return responses.ErrorResponse(c, http.StatusBadRequest, "The id is null or missing")
 	}
 
-   err := u.server.GoCloakClient.DeleteUser(u.server.Ctx,accessToken,u.server.Config.KeycloakConfig.Realm,id)
+	err := userService.DeleteUser(id,accessToken, u.server.Config.KeycloakConfig.Realm)
 
-   if err != nil {
-	 return responses.ErrorResponse(c,http.StatusInternalServerError , "Cannot delete user in keycloak")
-   }
+	if err != nil {
+		return responses.ErrorResponse(c, http.StatusInternalServerError, "Cannot delete user in keycloak")
+	}
 
-   return responses.MessageResponse(c, http.StatusNoContent, "User deleted successfully")
+	return responses.MessageResponse(c, http.StatusNoContent, "User deleted successfully")
 
 }
-

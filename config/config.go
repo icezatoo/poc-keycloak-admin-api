@@ -1,6 +1,5 @@
 package config
 
-
 import (
 	"log"
 
@@ -8,8 +7,8 @@ import (
 )
 
 type Config struct {
-	KeycloakConfig   KeycloakConfig
-	HTTP HTTPConfig
+	KeycloakConfig KeycloakConfig
+	HTTP           HTTPConfig
 }
 
 func NewConfig() *Config {
@@ -20,6 +19,6 @@ func NewConfig() *Config {
 
 	return &Config{
 		KeycloakConfig: LoadKeycloakConfig(),
-		HTTP: LoadHTTPConfig(),
+		HTTP:           LoadHTTPConfig(),
 	}
 }

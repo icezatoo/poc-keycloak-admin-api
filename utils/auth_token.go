@@ -5,14 +5,11 @@ import (
 	"strings"
 )
 
-
 func extractBearerToken(token string) string {
 	return strings.Replace(token, "Bearer ", "", 1)
 }
 
-
-func  GetAccessTokenFromHeader(c echo.Context) string  {
+func GetAccessTokenFromHeader(c echo.Context) string {
 	token := c.Request().Header.Get("Authorization")
 	return extractBearerToken(token)
 }
-

@@ -9,10 +9,10 @@ import (
 )
 
 type Server struct {
-	Echo   *echo.Echo
-	Config *config.Config
+	Echo          *echo.Echo
+	Config        *config.Config
 	GoCloakClient gocloak.GoCloak
-	Ctx  context.Context
+	Ctx           context.Context
 }
 
 func NewServer(cfg *config.Config) *Server {
@@ -21,17 +21,16 @@ func NewServer(cfg *config.Config) *Server {
 	client := gocloak.NewClient(cfg.KeycloakConfig.HostKeycloak)
 	restyClient := client.RestyClient()
 	restyClient.SetDebug(false)
-	restyClient.SetTLSClientConfig(&tls.Config{ InsecureSkipVerify: true })
+	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 
 	return &Server{
-		Echo: echo.New(),
-		Config: cfg,
+		Echo:          echo.New(),
+		Config:        cfg,
 		GoCloakClient: client,
-		Ctx: context.Background(),
+		Ctx:           context.Background(),
 	}
 }
 
 func (server *Server) Start(addr string) error {
 	return server.Echo.Start(":" + addr)
 }
-

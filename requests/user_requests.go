@@ -1,18 +1,17 @@
 package requests
 
 import (
+	"github.com/Nerzal/gocloak/v8"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 )
 
-
-
 type UserKeycloak struct {
-	FirstName    string `json:"firstName" validate:"required" example:"Test"`
-	LastName string `json:"lastName" validate:"required" example:"lastName"`
-	Email string `json:"email" validate:"required" example:"john.doe@example.com"`
-	Enabled bool `json:"enabled" validate:"required" example:"true"`
-	Username string `json:"username" validate:"required" example:"Hello"`
+	FirstName string `json:"firstName" validate:"required" example:"Test"`
+	LastName  string `json:"lastName" validate:"required" example:"lastName"`
+	Email     string `json:"email" validate:"required" example:"john.doe@example.com"`
+	Enabled   bool   `json:"enabled" validate:"required" example:"true"`
+	Username  string `json:"username" validate:"required" example:"Hello"`
 }
 
 func (ba UserKeycloak) Validate() error {
@@ -26,4 +25,8 @@ func (ba UserKeycloak) Validate() error {
 
 type CreateUserRequest struct {
 	UserKeycloak
+}
+
+type GetKeycloakUserParamsRequest struct {
+	GetUsersParams gocloak.GetUsersParams
 }
