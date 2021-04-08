@@ -50,7 +50,9 @@ func (u *UserHandler) GetUsers(c echo.Context) error {
 		return responses.ErrorResponse(c, http.StatusNotFound, "Cannot get the users")
 	}
 
-	return responses.Response(c, http.StatusOK, users)
+
+	response := responses.NewUserResponse(users)
+	return responses.Response(c, http.StatusOK, response)
 }
 
 // GetUserDetail godoc

@@ -24,6 +24,11 @@ func ConfigureRoutes(server *s.Server) {
 	server.Echo.Use(middleware.Logger())
 	server.Echo.Use(middleware.Recover())
 
+	server.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000"},
+	}))
+
+
 	server.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	r := server.Echo.Group("")

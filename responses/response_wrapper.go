@@ -14,6 +14,7 @@ type Data struct {
 	Message string `json:"message"`
 }
 
+
 func Response(c echo.Context, statusCode int, data interface{}) error {
 	// nolint // context.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	// nolint // context.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
